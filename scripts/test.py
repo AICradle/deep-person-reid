@@ -38,13 +38,13 @@ def main(data_dir, save_dir):
         batch_size_train=32,
         batch_size_test=100,
         transforms=['random_flip'],
-
+        split_id=0
     )
 
     model = torchreid.models.build_model(
         name='osnet_ain_x1_0',
         num_classes=datamanager.num_train_pids,
-        loss='triplet',
+        loss='softmax',
         pretrained=True
     )
 
@@ -52,13 +52,13 @@ def main(data_dir, save_dir):
 
     optimizer = torchreid.optim.build_optimizer(
         model,
-        optim='amsgrad',
-        lr=0.0015
+        optim='adam',
+        lr=0.0003
     )
 
     scheduler = torchreid.optim.build_lr_scheduler(
         optimizer,
-        lr_scheduler='cosine',
+        lr_scheduler='single_step',
         stepsize=20
     )
 
@@ -69,14 +69,21 @@ def main(data_dir, save_dir):
         scheduler=scheduler,
         label_smooth=True
     )
+
+    start_epoch = torchreid.utils.resume_from_checkpoint(
+        './reid_out/model/model.pth.tar-6',
+        model,
+        optimizer
+    )
+
     engine.run(
+        start_epoch=start_epoch,
         save_dir=save_dir,
-        max_epoch=10,
-        fixbase_epoch=2,
-        dist_metric="cosine",
+        max_epoch=60,
         eval_freq=1,
         print_freq=2,
-        test_only=False
+        test_only=True,
+        visrank=True
     )
 
 
