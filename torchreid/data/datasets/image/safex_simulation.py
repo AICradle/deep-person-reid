@@ -119,7 +119,7 @@ class SafeXCARLASimulation(ImageDataset):
                         guid_label = train_pid2label[object_guid]
                         entry = (path, guid_label, camera_guid)
                         train.append(entry)
-                        shutil.copyfile(path, os.path.join(self.train_dir, str(object_guid) + "_" + str(camera_guid) + ".jpg"))
+                        #shutil.copyfile(path, os.path.join(self.train_dir, str(object_guid) + "_" + str(camera_guid) + ".jpg"))
 
                 # for each test ID, randomly choose two images, one for
                 # query and the other one for gallery.
@@ -132,9 +132,10 @@ class SafeXCARLASimulation(ImageDataset):
                     gallery_samples = samples[1:]
                     query.append(query_sample)
                     gallery.extend(gallery_samples)
-                    shutil.copyfile(query_sample[0], os.path.join(self.query_dir, str(query_sample[1]) + "_" + str(query_sample[2]) + ".jpg"))
+                    #shutil.copyfile(query_sample[0], os.path.join(self.query_dir, str(query_sample[1]) + "_" + str(query_sample[2]) + ".jpg"))
                     for gallery_sample in gallery_samples:
-                        shutil.copyfile(gallery_sample[0], os.path.join(self.gallery_dir, str(gallery_sample[1]) + "_" + str(gallery_sample[2]) + ".jpg"))
+                        pass
+                        #shutil.copyfile(gallery_sample[0], os.path.join(self.gallery_dir, str(gallery_sample[1]) + "_" + str(gallery_sample[2]) + ".jpg"))
 
                 split = {'train': train, 'query': query, 'gallery': gallery}
                 splits.append(split)
