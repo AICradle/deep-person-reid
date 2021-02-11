@@ -42,7 +42,7 @@ def main(data_dir, save_dir):
     )
 
     model = torchreid.models.build_model(
-        name='osnet_ain_x1_0',
+        name='resnet50',
         num_classes=datamanager.num_train_pids,
         loss='triplet',
         pretrained=True
@@ -83,7 +83,7 @@ def main(data_dir, save_dir):
 if __name__ == "__main__":
     parser = ArgumentParser()
     parser.add_argument("--data_dir", default="./reid_out/", required=False)
-    parser.add_argument("--save_dir", default="./reid_out/osnet", required=False)
+    parser.add_argument("--save_dir", default="./reid_out/resnet/", required=False)
 
     args = parser.parse_args()
     main(

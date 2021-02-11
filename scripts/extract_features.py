@@ -1,11 +1,13 @@
 import json
 import logging
-import os
 import numpy as np
 
 from argparse import ArgumentParser
 
+from tqdm import tqdm
+
 from torchreid.utils import FeatureExtractor
+
 from torchreid.utils.tools import read_jsonl
 
 logging.basicConfig(level=logging.INFO)
@@ -24,34 +26,38 @@ class NumpyEncoder(json.JSONEncoder):
             return super(NumpyEncoder, self).default(obj)
 
 
-def main(in_fp, model_fp, out_dir):
-    out_fp = os.path.join(out_dir, "features.")
-
+def main(in_fp: str, model_fp: str, out_fp: str, device: str, max_objects: int):
     extractor = FeatureExtractor(
-        model_name='osnet_x1_0',
+        model_name="osnet_x1_0",
         model_path=model_fp,
-        device='cuda'
+        device=device
     )
 
     manifest_entries = read_jsonl(in_fp)
     with open(out_fp, "w") as f:
-        for manifest_entry in manifest_entries:
+        for ix, manifest_entry in tqdm(enumerate(manifest_entries), desc="objects"):
+            if ix > max_objects:
+                continue
+
             path = manifest_entry["path"]
             features = extractor([path])
-            f.write(json.dumps(
-                dict(path=path, features=features[0]), cls=NumpyEncoder)
-            )
+            manifest_entry["features"] = features[0].cpu().detach().numpy()
+            f.write(json.dumps(manifest_entry, cls=NumpyEncoder) + "\n")
 
 
 if __name__ == "__main__":
     parser = ArgumentParser()
     parser.add_argument("--manifest_fp", required=True, type=str)
     parser.add_argument("--model_fp", required=True, type=str)
-    parser.add_argument("--out_dir", required=True, type=str)
+    parser.add_argument("--out_fp", required=True, type=str)
+    parser.add_argument("--max_objects", required=False, type=int, default=1000)
+    parser.add_argument("--device", required=False, type=str, default="cpu")
 
     args = parser.parse_args()
     main(
         in_fp=args.manifest_fp,
         model_fp=args.model_fp,
-        out_dir=args.out_dir
+        out_fp=args.out_fp,
+        device=args.device,
+        max_objects=args.max_objects
     )
