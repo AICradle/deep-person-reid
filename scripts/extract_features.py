@@ -36,12 +36,13 @@ def main(in_fp: str, model_fp: str, out_fp: str, device: str, max_objects: int):
     manifest_entries = read_jsonl(in_fp)
     with open(out_fp, "w") as f:
         for ix, manifest_entry in tqdm(enumerate(manifest_entries), desc="objects"):
-            if ix > max_objects:
+            if max_objects and ix > max_objects:
                 continue
 
             path = manifest_entry["path"]
             features = extractor([path])
-            manifest_entry["features"] = features[0].cpu().detach().numpy()
+            features = features[0].cpu().detach().numpy()
+            manifest_entry["features"] = features
             f.write(json.dumps(manifest_entry, cls=NumpyEncoder) + "\n")
 
 
@@ -50,7 +51,7 @@ if __name__ == "__main__":
     parser.add_argument("--manifest_fp", required=True, type=str)
     parser.add_argument("--model_fp", required=True, type=str)
     parser.add_argument("--out_fp", required=True, type=str)
-    parser.add_argument("--max_objects", required=False, type=int, default=1000)
+    parser.add_argument("--max_objects", required=False, type=int, default=3000)
     parser.add_argument("--device", required=False, type=str, default="cpu")
 
     args = parser.parse_args()

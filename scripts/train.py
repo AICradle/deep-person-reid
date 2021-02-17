@@ -35,6 +35,7 @@ def main(data_dir, save_dir):
         sources=['safex_carla_simulation'],
         height=256,
         width=128,
+        split_id=0,
         batch_size_train=32,
         batch_size_test=100,
         transforms=['random_flip'],
